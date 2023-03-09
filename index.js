@@ -1,5 +1,6 @@
 require('dotenv').config();
 const fs = require('fs');
+const pattern = /[^a-zA-Z]/;
 
 // Discord.js versions ^13.0 require us to explicitly define client intents
 const { Client, GatewayIntentBits } = require('discord.js')
@@ -16,19 +17,18 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
-    if (message.reference != null) {
-        const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
-        console.log(message.reference)
-        console.log(repliedTo.content, message.content);
-
-        fs.appendFile('./data.csv', `"${repliedTo.content}","${message.content}"` + '\n', (err) => {
-            if (err) throw err;
-        });
-
+    if (pattern.test(message.content) === false) { //filter special charectors
+        if (message.reference != null) {
+            const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
+            console.log(message.reference)
+            console.log(repliedTo.content, message.content);
+            if (repliedTo.content != "" && message.content != "") { // if both are not empty write to data
+                fs.appendFile('./data.csv', `"${repliedTo.content}","${message.content}"` + '\n', (err) => {
+                    if (err) throw err;
+                });
+            }
+        }
     }
-
-
 });
 
-// create an object to write to the file
 client.login(process.env.CLIENT_TOKEN);
