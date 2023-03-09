@@ -20,7 +20,6 @@ client.on('messageCreate', async message => {
         const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
         console.log(message.reference)
         console.log(repliedTo.content, message.content);
-        fs.readFile()
 
         fs.appendFile('./data.csv', `"${repliedTo.content}","${message.content}"` + '\n', (err) => {
             if (err) throw err;
