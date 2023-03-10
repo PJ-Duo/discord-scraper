@@ -29,25 +29,29 @@ async function fetchAllMessages() {
     let message = await channel.messages.fetch({ limit: 1 }).then(messagePage => (messagePage.size === 1 ? messagePage.at(0) : null));
 
     while (message) {
-       // console.log(messages)
-        if (messages.length < 40) {
+        // console.log(messages)
+        if (messages.length < 4000000000000) {
 
 
             await channel.messages.fetch({ limit: 100, before: message.id }).then(messagePage => {
-                //   messagePage.forEach(msg => messages.push(msg));
-               /* messagePage.forEach(msg => {
-                    if (msg.reference != null) {
-                        messages.push({ answer: msg.content, qid: msg.reference.messageId })
-                        //console.log(msg.reference.messageId)
-                    }
-                }); */
-             //   console.log(typeof messagePage)
-                for ( let msg of messagePage) {
+
+                for (let msg of messagePage) {
                     console.log(msg[1].content)
-               
+
                     if (msg[1].reference != null) {
+                        async function bruh() {
+                            let q = await client.channels.cache.get("825224040641724416").messages.fetch(msg[1].reference.messageId)
+                            console.log(q.content)
+                            if (/[^a-zA-Z0-9\s]/g.test(q.content) == false && /[^a-zA-Z0-9\s]/g.test(msg[1].content) == false && q.content != "" && msg[1].content != "") {
+                                fs.appendFile('./history.csv', `"${q.content}","${msg[1].content}"` + '\n', (err) => {
+                                    if (err) throw err;
+                                });
+                            }
+                        }
+
+                        bruh()
                         messages.push({ answer: msg[1].content, qid: msg[1].reference.messageId })
-                        
+
                     }
                 }
 
@@ -60,14 +64,6 @@ async function fetchAllMessages() {
     }
 
 
-    for (i = 0; i < messages.length; i++) {
-        q = await client.channels.cache.get("825224040641724416").messages.fetch(messages[i].qid)
-        if (/[^a-zA-Z0-9\s]/g.test(q.content) == false && /[^a-zA-Z0-9\s]/g.test(messages[i].answer) == false && q.content != "" && messages[i].answer != "") {
-            fs.appendFile('./history.csv', `"${q.content}","${messages[i].answer}"` + '\n', (err) => {
-                if (err) throw err;
-            });
-        }
-    }
 }
 
 
