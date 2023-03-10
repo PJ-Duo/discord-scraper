@@ -12,7 +12,7 @@ const client = new Client({
     ]
 })
 
-
+let q;
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     fetchAllMessages()
@@ -30,7 +30,7 @@ async function fetchAllMessages() {
 
     while (message) {
         console.log(messages)
-        if (messages.length < 50) {
+        if (messages.length < 100) {
 
 
             await channel.messages.fetch({ limit: 100, before: message.id }).then(messagePage => {
@@ -50,7 +50,14 @@ async function fetchAllMessages() {
     }
 
 
-    console.log(messages[0].q.fetch());  // Print all messages
+    for (i = 0; i < messages.length; i++) {
+        q = await client.channels.cache.get("825224040641724416").messages.fetch(messages[i].qid)
+        if (/[^a-zA-Z0-9\s]/g.test(q.content) == false && /[^a-zA-Z0-9\s]/g.test(messages[i].answer)== false && q.content != "" && messages[i].answer != "") {
+            fs.appendFile('./history.csv', `"${q.content}","${messages[i].answer}"` + '\n', (err) => {
+                if (err) throw err;
+            });
+        }
+    }
 }
 
 

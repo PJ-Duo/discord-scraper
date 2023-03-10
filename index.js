@@ -17,6 +17,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
+ //   console.log()
     if (pattern.test(message.content) === false) { //filter special charectors
         if (message.reference != null) {
             const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
