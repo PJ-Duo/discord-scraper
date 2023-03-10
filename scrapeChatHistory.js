@@ -22,26 +22,29 @@ client.on('ready', () => {
 async function fetchAllMessages() {
     const channel = client.channels.cache.get("825224040641724416");
 
-    // console.log(channel)
     let messages = [];
-
+    let message;
     // Create message pointer
-    let message = await channel.messages.fetch({ limit: 1 }).then(messagePage => (messagePage.size === 1 ? messagePage.at(0) : null));
+    if (fs.readFileSync('./lol.txt', 'utf8') == "") {
+        message = await channel.messages.fetch({ limit: 1 }).then(messagePage => (messagePage.size === 1 ? messagePage.at(0) : null));
+    } else {
+        message = JSON.parse(fs.readFileSync('./lol.txt', 'utf8'));
+    }
+
 
     while (message) {
-        // console.log(messages)
         if (messages.length < 4000000000000) {
 
 
             await channel.messages.fetch({ limit: 100, before: message.id }).then(messagePage => {
 
                 for (let msg of messagePage) {
-                    console.log(msg[1].content)
+                    //    console.log(msg[1].content)
 
                     if (msg[1].reference != null) {
                         async function bruh() {
                             let q = await client.channels.cache.get("825224040641724416").messages.fetch(msg[1].reference.messageId)
-                            console.log(q.content)
+                            // console.log(q.content)
                             if (/[^a-zA-Z0-9\s]/g.test(q.content) == false && /[^a-zA-Z0-9\s]/g.test(msg[1].content) == false && q.content != "" && msg[1].content != "") {
                                 fs.appendFile('./history.csv', `"${q.content}","${msg[1].content}"` + '\n', (err) => {
                                     if (err) throw err;
@@ -57,6 +60,9 @@ async function fetchAllMessages() {
 
                 // Update our message pointer to be last message in page of messages
                 message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
+                fs.writeFileSync("./lol.txt", JSON.stringify(message))
+                message = JSON.parse(fs.readFileSync('./lol.txt', 'utf8'));
+                console.log(message)
             });
         } else {
             break;
